@@ -8,7 +8,7 @@
          children/2,
          value/1,
          sorted/1,
-         convert/2,
+         convert/3,
          fold_nodes/3,
          fold_edges/3
         ]).
@@ -54,15 +54,16 @@ sorted(right) ->
 sorted({Value, Left, Right}) ->
     sorted(Left) ++ [Value] ++ sorted(Right).
 
-maybe_convert(_Fun, left) ->
-    left;
-maybe_convert(_Fun, right) ->
-    right;
-maybe_convert(Fun, Node) ->
-    convert(Fun, Node).
+maybe_convert(_Fun, Acc, Child) when is_atom(Child) ->
+    {Child, Acc};
+maybe_convert(Fun, Acc, Node) ->
+    convert(Fun, Acc, Node).
 
-convert(F, {Value, Left, Right}) ->
-    {F(Value), maybe_convert(F, Left), maybe_convert(F, Right)}.
+convert(F, Acc, {_Val, Left, Right}=Node) ->
+    {NewValue, Acc1} = F(Node, Acc),
+    {LeftTree, Acc2} = maybe_convert(F, Acc1, Left),
+    {RightTree, Acc3} = maybe_convert(F, Acc2, Right),
+    {{NewValue, LeftTree, RightTree}, Acc3}.
 
 maybe_fold_nodes(_Fun, Acc, left) ->
     Acc;
