@@ -39,10 +39,20 @@ convert_test() ->
     Converted = treesort:convert(fun(V) -> V*3 end, Root3),
     [6, 9, 15] = treesort:sorted(Converted).
 
-fold_sum_test() ->
+fold_nodes_test() ->
     Root = treesort:root(5),
     Root2 = treesort:insert(2, Root),
     Root3 = treesort:insert(3, Root2),
-    Sum = treesort:fold(fun(Value, Sum) -> Sum + Value end,
-                        0, Root3),
+    Sum = treesort:fold_nodes(fun(Value, Sum) -> Sum + Value end,
+                              0, Root3),
     10 = Sum.
+
+fold_edges_test() ->
+    Root = treesort:root(5),
+    Root2 = treesort:insert(2, Root),
+    Root3 = treesort:insert(3, Root2),
+    [{2, 3, right}, {5, 2, left}] =
+        lists:sort(
+          treesort:fold_edges(fun(V1, V2, Edge, Acc) ->
+                                      [{V1, V2, Edge}|Acc] end,
+                              [], Root3)).
