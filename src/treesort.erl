@@ -8,7 +8,8 @@
          children/2,
          value/1,
          sorted/1,
-         convert/2
+         convert/2,
+         fold/3
         ]).
 
 root(Val) ->
@@ -61,3 +62,15 @@ maybe_convert(Fun, Node) ->
 
 convert(F, {Value, Left, Right}) ->
     {F(Value), maybe_convert(F, Left), maybe_convert(F, Right)}.
+
+maybe_fold(_Fun, Acc, left) ->
+    Acc;
+maybe_fold(_Fun, Acc, right) ->
+    Acc;
+maybe_fold(Fun, Acc, Node) ->
+    fold(Fun, Acc, Node).
+
+fold(F, Acc, {Value, Left, Right}) ->
+    Acc2 = maybe_fold(F, Acc, Left),
+    Acc3 = F(Value, Acc2),
+    maybe_fold(F, Acc3, Right).

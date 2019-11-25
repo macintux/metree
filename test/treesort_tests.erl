@@ -38,3 +38,11 @@ convert_test() ->
     Root3 = treesort:insert(3, Root2),
     Converted = treesort:convert(fun(V) -> V*3 end, Root3),
     [6, 9, 15] = treesort:sorted(Converted).
+
+fold_sum_test() ->
+    Root = treesort:root(5),
+    Root2 = treesort:insert(2, Root),
+    Root3 = treesort:insert(3, Root2),
+    Sum = treesort:fold(fun(Value, Sum) -> Sum + Value end,
+                        0, Root3),
+    10 = Sum.
