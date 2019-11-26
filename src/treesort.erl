@@ -1,32 +1,48 @@
 %% Binary search tree.
-
 -module(treesort).
 -export([
          root/1,
          root/2,
          new_node/1,
          new_node/2,
+         bulk/1,
+         bulk/2,
          insert/2,
          children/2,
          value/1,
          sorted/1,
          transform/3,
          fold_nodes/3,
-         fold_edges/3
+         fold_edges/3,
+         default_compfun/0
         ]).
 
+-define(CF, fun(X, Y) -> X < Y end).
+
+default_compfun() ->
+    ?CF.
+
 root(Val) ->
-    root(Val, fun(X, Y) -> X < Y end).
+    root(Val, ?CF).
 
 root(Val, CompFun) ->
     new_node(Val, CompFun).
 
 new_node(Val) ->
-    new_node(Val, fun(X, Y) -> X < Y end).
+    new_node(Val, ?CF).
 
 new_node(Val, CompFun) ->
     {Val, CompFun, left, right}.
 
+bulk(Vals) ->
+    bulk(Vals, ?CF).
+
+%% Will crash with an empty initial list, but we have no defined
+%% behavior for that scenario anyway.
+bulk([H|T], CompFun) ->
+    Root = root(H, CompFun),
+    lists:foldl(fun(V, Tree) -> insert(V, Tree) end,
+                Root, T).
 
 insert(NewVal, {_Val, CompFun, _Left, _Right}=Node) ->
     insert(NewVal, CompFun, Node).
