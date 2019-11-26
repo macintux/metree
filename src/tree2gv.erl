@@ -1,4 +1,4 @@
-%% Convert one of my sorted binary trees into a graphviz document.
+%% Transform one of my sorted binary trees into a graphviz document.
 -module(tree2gv).
 -export([tree2gv/1]).
 
@@ -27,13 +27,13 @@ edge_fold({N1, _L1}, {N2, _L2}, right, Acc) ->
     [fmt("    ~s:right -> ~s:value;", [N1, N2])|Acc].
 
 %% Multiple stages:
-%%   1) Convert a sorted tree into a tree with dot node definitions as
+%%   1) Transform a sorted tree into a tree with dot node definitions as
 %%      values
 %%   2) Navigate the tree again to retrieve that list of nodes
 %%   3) Navigate the tree again to generate a list of edges
 tree2gv(Tree) ->
-    Converted = treesort:convert(fun to_gv_node/2, 0, Tree),
-    Nodes = treesort:fold_nodes(fun node_fold/2, [], Converted),
-    Edges = treesort:fold_edges(fun edge_fold/4, [], Converted),
+    Transformed = treesort:transform(fun to_gv_node/2, 0, Tree),
+    Nodes = treesort:fold_nodes(fun node_fold/2, [], Transformed),
+    Edges = treesort:fold_edges(fun edge_fold/4, [], Transformed),
     lists:flatten(head() ++ lists:join("\n", Nodes) ++ "\n" ++
                       lists:join("\n", Edges) ++ "\n" ++ tail()).
