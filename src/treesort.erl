@@ -5,9 +5,10 @@
          root/2,
          new_node/1,
          new_node/2,
-         bulk/1,
-         bulk/2,
+         bulk_tree/1,
+         bulk_tree/2,
          insert/2,
+         bulk_insert/2,
          children/2,
          value/1,
          sorted/1,
@@ -34,15 +35,19 @@ new_node(Val) ->
 new_node(Val, CompFun) ->
     {Val, CompFun, left, right}.
 
-bulk(Vals) ->
-    bulk(Vals, ?CF).
+bulk_tree(Vals) ->
+    bulk_tree(Vals, ?CF).
 
 %% Will crash with an empty initial list, but we have no defined
 %% behavior for that scenario anyway.
-bulk([H|T], CompFun) ->
+bulk_tree([H|T], CompFun) ->
     Root = root(H, CompFun),
     lists:foldl(fun(V, Tree) -> insert(V, Tree) end,
                 Root, T).
+
+bulk_insert(Vals, Root) ->
+    lists:foldl(fun(V, Tree) -> insert(V, Tree) end,
+                Root, Vals).
 
 insert(NewVal, {_Val, CompFun, _Left, _Right}=Node) ->
     insert(NewVal, CompFun, Node).

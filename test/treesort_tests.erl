@@ -40,8 +40,15 @@ reversed_test() ->
 
 bulk_test() ->
     [1, 3, 5, 7, 9, 11, 13, 15, 17, 19] =
-        treesort:sorted(treesort:bulk([3, 13, 1, 7, 19, 17,
-                                       15, 9, 5, 11])).
+        treesort:sorted(treesort:bulk_tree([3, 13, 1, 7, 19, 17,
+                                            15, 9, 5, 11])).
+
+bulk_insert_test() ->
+    [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29] =
+        treesort:sorted(
+          treesort:bulk_insert([5, 21, 11, 9, 29],
+                               treesort:bulk_tree([3, 13, 27, 1, 7, 19, 17,
+                                                   15, 23, 25]))).
 
 transform_test() ->
     Root = treesort:root(5),
