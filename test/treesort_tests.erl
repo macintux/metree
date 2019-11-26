@@ -32,11 +32,18 @@ sorted2_test() ->
     Root = treesort:root(5),
     [5] = treesort:sorted(Root).
 
+reversed_test() ->
+    Root = treesort:root(5, fun(X, Y) -> Y < X end),
+    Root2 = treesort:insert(2, Root),
+    Root3 = treesort:insert(3, Root2),
+    [5, 3, 2] = treesort:sorted(Root3).
+
 convert_test() ->
     Root = treesort:root(5),
     Root2 = treesort:insert(2, Root),
     Root3 = treesort:insert(3, Root2),
-    Converted = treesort:convert(fun({V, _L, _R}, M) -> {V*M, M} end, 3, Root3),
+    Converted = treesort:convert(
+                  fun(N, M) -> {treesort:value(N)*M, M} end, 3, Root3),
     [6, 9, 15] = treesort:sorted(Converted).
 
 fold_nodes_test() ->
