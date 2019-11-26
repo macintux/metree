@@ -1,6 +1,9 @@
 %% Transform one of my sorted binary trees into a graphviz document.
 -module(tree2gv).
--export([tree2gv/1]).
+-export([
+         tree2gv/1,
+         tree2gv/2
+        ]).
 
 
 head() ->
@@ -37,3 +40,7 @@ tree2gv(Tree) ->
     Edges = treesort:fold_edges(fun edge_fold/4, [], Transformed),
     lists:flatten(head() ++ lists:join("\n", Nodes) ++ "\n" ++
                       lists:join("\n", Edges) ++ "\n" ++ tail()).
+
+tree2gv(Tree, File) ->
+    GV = tree2gv(Tree),
+    file:write(File, GV).
