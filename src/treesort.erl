@@ -54,12 +54,16 @@ sorted(right) ->
 sorted({Value, Left, Right}) ->
     sorted(Left) ++ [Value] ++ sorted(Right).
 
+convert(F, Acc, Node) ->
+    {NewTree, _Acc} = real_convert(F, Acc, Node),
+    NewTree.
+
 maybe_convert(_Fun, Acc, Child) when is_atom(Child) ->
     {Child, Acc};
 maybe_convert(Fun, Acc, Node) ->
-    convert(Fun, Acc, Node).
+    real_convert(Fun, Acc, Node).
 
-convert(F, Acc, {_Val, Left, Right}=Node) ->
+real_convert(F, Acc, {_Val, Left, Right}=Node) ->
     {NewValue, Acc1} = F(Node, Acc),
     {LeftTree, Acc2} = maybe_convert(F, Acc1, Left),
     {RightTree, Acc3} = maybe_convert(F, Acc2, Right),
