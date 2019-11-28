@@ -45,6 +45,15 @@ reversed_test() ->
     Root3 = treesort:insert(3, Root2),
     [5, 3, 2] = treesort:sorted(Root3).
 
+custom_type_test() ->
+    CF = treesort:default_compfun(),
+    MyCF = fun({_, X}, {_, Y}) -> CF(X, Y) end,
+    Root = treesort:root({"b", 5}, MyCF),
+    Root2 = treesort:insert({"a", 42}, Root),
+    Root3 = treesort:insert({"c", 1}, Root2),
+    Root4 = treesort:delete({"b", 5}, Root3),
+    [{"c", 1}, {"a", 42}] = treesort:sorted(Root4).
+
 min_test() ->
     1 == treesort:minimum(
            treesort:bulk_tree([3, 13, 1, 7, 19, 17,
