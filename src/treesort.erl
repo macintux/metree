@@ -3,11 +3,10 @@
 -export([
          root/1,
          root/2,
-         new_node/1,
-         new_node/2,
          bulk_tree/1,
          bulk_tree/2,
          insert/2,
+         delete/2,
          bulk_insert/2,
          children/2,
          value/1,
@@ -15,7 +14,9 @@
          transform/3,
          fold_nodes/3,
          fold_edges/3,
-         default_compfun/0
+         default_compfun/0,
+         minimum/1,
+         maximum/1
         ]).
 
 -define(CF, fun(X, Y) -> X < Y end).
@@ -29,11 +30,8 @@ root(Val) ->
 root(Val, CompFun) ->
     new_node(Val, CompFun).
 
-new_node(Val) ->
-    new_node(Val, ?CF).
-
 new_node(Val, CompFun) ->
-    {Val, CompFun, left, right}.
+    {Val, CompFun, empty, empty}.
 
 bulk_tree(Vals) ->
     bulk_tree(Vals, ?CF).
@@ -52,9 +50,7 @@ bulk_insert(Vals, Root) ->
 insert(NewVal, {_Val, CompFun, _Left, _Right}=Node) ->
     insert(NewVal, CompFun, Node).
 
-insert(NewValue, CompFun, left) ->
-    new_node(NewValue, CompFun);
-insert(NewValue, CompFun, right) ->
+insert(NewValue, CompFun, empty) ->
     new_node(NewValue, CompFun);
 insert(NewVal, CompFun, {Val, CompFun, Left, Right}) ->
     %% The two CompFun instances should be the same function; if not,
@@ -66,11 +62,33 @@ insert(NewVal, CompFun, {Val, CompFun, Left, Right}) ->
             {Val, CompFun, Left, insert(NewVal, CompFun, Right)}
     end.
 
+delete(Val, {_Val, CompFun, _Left, _Right}=Node) ->
+    delete(Val, CompFun, Node).
+
+delete(_Val, _CompFun, empty) ->
+    empty;
+delete(Val, _CompFun, {Val, _CompFun, empty, empty}) ->
+    empty;
+delete(Val, _CompFun, {Val, _CompFun, Left, empty}) ->
+    Left;
+delete(Val, _CompFun, {Val, _CompFun, empty, Right}) ->
+    Right;
+delete(Val, CompFun, {Val, CompFun, Left, Right}) ->
+    Replacement = minimum(Right),
+    NewRight = delete(Replacement, CompFun, Right),
+    {Replacement, CompFun, Left, NewRight};
+delete(Val, CompFun, {WrongVal, CompFun, Left, Right}) ->
+    case CompFun(Val, WrongVal) of
+        true ->
+            {WrongVal, CompFun, delete(Val, CompFun, Left), Right};
+        false ->
+            {WrongVal, CompFun, Left, delete(Val, CompFun, Right)}
+    end.
+
+
 children(Value, {Value, _F, L, R}) ->
     {L, R};
-children(_SearchVal, left) ->
-    notfound;
-children(_SearchVal, right) ->
+children(_SearchVal, empty) ->
     notfound;
 children(SearchVal, {Value, CompFun, L, R}) ->
     case CompFun(SearchVal, Value) of
@@ -80,19 +98,25 @@ children(SearchVal, {Value, CompFun, L, R}) ->
             children(SearchVal, R)
     end.
 
-value(left) ->
-    undefined;
-value(right) ->
+value(empty) ->
     undefined;
 value({Value, _F, _L, _R}) ->
     Value.
 
-sorted(left) ->
-    [];
-sorted(right) ->
+sorted(empty) ->
     [];
 sorted({Value, _F, Left, Right}) ->
     sorted(Left) ++ [Value] ++ sorted(Right).
+
+minimum({Val, _F, empty, _R}) ->
+    Val;
+minimum({_Val, _F, Left, _R}) ->
+    minimum(Left).
+
+maximum({Val, _F, _L, empty}) ->
+    Val;
+maximum({_Val, _F, _L, Right}) ->
+    maximum(Right).
 
 transform(F, Acc, Node) ->
     {NewTree, _Acc} = real_transform(F, Acc, Node),
@@ -109,9 +133,7 @@ real_transform(F, Acc, {_Val, CompFun, Left, Right}=Node) ->
     {RightTree, Acc3} = maybe_transform(F, Acc2, Right),
     {{NewValue, CompFun, LeftTree, RightTree}, Acc3}.
 
-maybe_fold_nodes(_Fun, Acc, left) ->
-    Acc;
-maybe_fold_nodes(_Fun, Acc, right) ->
+maybe_fold_nodes(_Fun, Acc, empty) ->
     Acc;
 maybe_fold_nodes(Fun, Acc, Node) ->
     fold_nodes(Fun, Acc, Node).
@@ -122,12 +144,12 @@ fold_nodes(F, Acc, {Value, _CompFun, Left, Right}) ->
     maybe_fold_nodes(F, Acc3, Right).
 
 
-fold_edges(_F, Acc, {_NodeValue, _CompFun, left, right}) ->
+fold_edges(_F, Acc, {_NodeValue, _CompFun, empty, empty}) ->
     Acc;
-fold_edges(F, Acc, {NodeValue, _CompFun, {ChildValue, _, _, _}=Child, right}) ->
+fold_edges(F, Acc, {NodeValue, _CompFun, {ChildValue, _, _, _}=Child, empty}) ->
     Acc2 = fold_edges(F, Acc, Child),
     F(NodeValue, ChildValue, left, Acc2);
-fold_edges(F, Acc, {NodeValue, _CompFun, left, {ChildValue, _, _, _}=Child}) ->
+fold_edges(F, Acc, {NodeValue, _CompFun, empty, {ChildValue, _, _, _}=Child}) ->
     Acc2 = F(NodeValue, ChildValue, right, Acc),
     fold_edges(F, Acc2, Child);
 fold_edges(F, Acc, {NodeValue, _CompFun, {LeftVal, _, _, _}=Left,

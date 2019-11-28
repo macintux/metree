@@ -4,12 +4,12 @@
 insert_test() ->
     Root = treesort:root(5),
     Root2 = treesort:insert(4, Root),
-    {left, right} = treesort:children(4, Root2).
+    {empty, empty} = treesort:children(4, Root2).
 
 insert2_test() ->
     Root = treesort:root(5),
     Root2 = treesort:insert(4, Root),
-    {Node, right} = treesort:children(5, Root2),
+    {Node, empty} = treesort:children(5, Root2),
     4 = treesort:value(Node).
 
 insert3_test() ->
@@ -38,6 +38,16 @@ reversed_test() ->
     Root3 = treesort:insert(3, Root2),
     [5, 3, 2] = treesort:sorted(Root3).
 
+min_test() ->
+    1 == treesort:minimum(
+           treesort:bulk_tree([3, 13, 1, 7, 19, 17,
+                               15, 9, 5, 11])).
+
+max_test() ->
+    19 == treesort:maximum(
+            treesort:bulk_tree([3, 13, 1, 7, 19, 17,
+                                15, 9, 5, 11])).
+
 bulk_test() ->
     [1, 3, 5, 7, 9, 11, 13, 15, 17, 19] =
         treesort:sorted(treesort:bulk_tree([3, 13, 1, 7, 19, 17,
@@ -49,6 +59,20 @@ bulk_insert_test() ->
           treesort:bulk_insert([5, 21, 11, 9, 29],
                                treesort:bulk_tree([3, 13, 27, 1, 7, 19, 17,
                                                    15, 23, 25]))).
+
+delete_test() ->
+    [1, 3, 5, 7, 11, 13, 15, 17, 19, 21, 25, 27, 29] =
+        treesort:sorted(
+          treesort:delete(
+            9,
+            treesort:delete(
+              23,
+              treesort:bulk_insert([5, 21, 11, 9, 29],
+                                   treesort:bulk_tree([3, 13, 27, 1, 7, 19, 17,
+                                                       15, 23, 25]))))).
+
+delete_missing_test() ->
+    [1, 3, 5] = treesort:sorted(treesort:delete(9, treesort:bulk_tree([5, 1, 3]))).
 
 transform_test() ->
     Root = treesort:root(5),
