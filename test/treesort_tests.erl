@@ -106,6 +106,34 @@ fold_nodes_test() ->
                               0, Root3),
     10 = Sum.
 
+fold_nodes_preorder_test() ->
+    Root = treesort:bulk_tree([4, 6, 5, 1, 3, 8, 2, 7]),
+    [4, 1, 3, 2, 6, 5, 8, 7] =
+        lists:reverse(
+          treesort:fold_nodes(
+            fun(Value, Acc) -> [Value|Acc] end, [], Root,
+            {depth, preorder})
+         ).
+
+fold_nodes_inorder_test() ->
+    Root = treesort:bulk_tree([4, 6, 5, 1, 3, 8, 2, 7]),
+    [1, 2, 3, 4, 5, 6, 7, 8] =
+        lists:reverse(
+          treesort:fold_nodes(
+            fun(Value, Acc) -> [Value|Acc] end, [], Root,
+            {depth, inorder})
+         ).
+
+fold_nodes_postorder_test() ->
+    Root = treesort:bulk_tree([4, 6, 5, 1, 3, 8, 2, 7]),
+    [2, 3, 1, 5, 7, 8, 6, 4] =
+        lists:reverse(
+          treesort:fold_nodes(
+            fun(Value, Acc) -> [Value|Acc] end, [], Root,
+            {depth, postorder})
+         ).
+
+
 fold_edges_test() ->
     Root = treesort:root(5),
     Root2 = treesort:insert(2, Root),

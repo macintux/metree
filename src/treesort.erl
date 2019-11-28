@@ -9,10 +9,12 @@
          delete/2,
          bulk_insert/2,
          children/2,
+         child/2,
          value/1,
          sorted/1,
          transform/3,
          fold_nodes/3,
+         fold_nodes/4,
          fold_edges/3,
          default_compfun/0,
          minimum/1,
@@ -94,6 +96,11 @@ delete(Val, CompFun, {WrongVal, CompFun, Left, Right}=Node) ->
     end.
 
 
+child({_Value, _F, L, _R}, left) ->
+    L;
+child({_Value, _F, _L, R}, right) ->
+    R.
+
 children(Value, {Value, _F, L, R}) ->
     {L, R};
 children(_SearchVal, empty) ->
@@ -144,16 +151,21 @@ real_transform(F, Acc, {_Val, CompFun, Left, Right}=Node) ->
     {RightTree, Acc3} = maybe_transform(F, Acc2, Right),
     {{NewValue, CompFun, LeftTree, RightTree}, Acc3}.
 
-maybe_fold_nodes(_Fun, Acc, empty) ->
-    Acc;
-maybe_fold_nodes(Fun, Acc, Node) ->
-    fold_nodes(Fun, Acc, Node).
+%% maybe_fold_nodes(_Fun, Acc, empty) ->
+%%     Acc;
+%% maybe_fold_nodes(Fun, Acc, Node) ->
+%%     fold_nodes(Fun, Acc, Node).
 
-fold_nodes(F, Acc, {Value, _CompFun, Left, Right}) ->
-    Acc2 = maybe_fold_nodes(F, Acc, Left),
-    Acc3 = F(Value, Acc2),
-    maybe_fold_nodes(F, Acc3, Right).
+%% fold_nodes(F, Acc, {Value, _CompFun, Left, Right}) ->
+%%     Acc2 = maybe_fold_nodes(F, Acc, Left),
+%%     Acc3 = F(Value, Acc2),
+%%     maybe_fold_nodes(F, Acc3, Right).
 
+fold_nodes(F, Acc, Node) ->
+    treefold:fold_nodes(F, Acc, Node, {fun value/1, fun child/2}, {depth, preorder}).
+
+fold_nodes(F, Acc, Node, Sequence) ->
+    treefold:fold_nodes(F, Acc, Node, {fun value/1, fun child/2}, Sequence).
 
 fold_edges(_F, Acc, {_NodeValue, _CompFun, empty, empty}) ->
     Acc;
