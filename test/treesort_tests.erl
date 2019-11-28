@@ -133,6 +133,15 @@ fold_nodes_postorder_test() ->
             {depth, postorder})
          ).
 
+fold_nodes_bfs_test() ->
+    Root = treesort:bulk_tree([4, 6, 5, 1, 3, 8, 2, 7]),
+    [4, 1, 6, 3, 5, 8, 2, 7] =
+        lists:reverse(
+          treesort:fold_nodes(
+            fun(Value, Acc) -> [Value|Acc] end, [], Root,
+            breadth)
+         ).
+
 
 fold_edges_test() ->
     Root = treesort:root(5),

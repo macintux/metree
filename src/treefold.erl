@@ -26,4 +26,19 @@ fold_nodes(F, Acc, Node, {VFun, CFun}=NFuns, {depth, preorder}=Seq) ->
 fold_nodes(F, Acc, Node, {VFun, CFun}=NFuns, {depth, postorder}=Seq) ->
     Acc2 = maybe_fold_nodes(F, Acc, CFun(Node, left), NFuns, Seq),
     Acc3 = maybe_fold_nodes(F, Acc2, CFun(Node, right), NFuns, Seq),
-    F(VFun(Node), Acc3).
+    F(VFun(Node), Acc3);
+fold_nodes(F, Acc, Node, NFuns, breadth=Seq) ->
+    breadth_first(F, Acc, [Node], NFuns).
+
+breadth_first(_F, Acc, [], _NFuns) ->
+    Acc;
+breadth_first(F, Acc, [H|T], {VFun, CFun}=NFuns) ->
+    breadth_first(F, F(VFun(H), Acc), T ++ children(H, CFun), NFuns).
+
+children(Node, Fun) ->
+    maybe_children([Fun(Node, left),
+                    Fun(Node, right)]).
+
+maybe_children(List) ->
+    lists:filter(fun(N) -> N /= empty end,
+                 List).
