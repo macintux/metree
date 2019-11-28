@@ -18,6 +18,11 @@ insert3_test() ->
     {_Left, Right} = treesort:children(5, Root2),
     undefined = treesort:value(Right).
 
+insert_dup_test() ->
+    Root = treesort:root(5),
+    Root2 = treesort:insert(5, Root),
+    [5] = treesort:sorted(Root2).
+
 empty_test() ->
     Root = treesort:root(5),
     notfound = treesort:children(4, Root).
@@ -33,7 +38,9 @@ sorted2_test() ->
     [5] = treesort:sorted(Root).
 
 reversed_test() ->
-    Root = treesort:root(5, fun(X, Y) -> Y < X end),
+    CF = treesort:default_compfun(),
+    ReversedCF = fun(X, Y) -> CF(Y, X) end,
+    Root = treesort:root(5, ReversedCF),
     Root2 = treesort:insert(2, Root),
     Root3 = treesort:insert(3, Root2),
     [5, 3, 2] = treesort:sorted(Root3).

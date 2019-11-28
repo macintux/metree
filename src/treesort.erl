@@ -19,7 +19,10 @@
          maximum/1
         ]).
 
--define(CF, fun(X, Y) -> X < Y end).
+-define(CF, fun(X, Y) when X < Y -> lt;
+               (X, Y) when X > Y -> gt;
+               (X, X) -> equal
+            end).
 
 default_compfun() ->
     ?CF.
@@ -52,14 +55,14 @@ insert(NewVal, {_Val, CompFun, _Left, _Right}=Node) ->
 
 insert(NewValue, CompFun, empty) ->
     new_node(NewValue, CompFun);
-insert(NewVal, CompFun, {Val, CompFun, Left, Right}) ->
-    %% The two CompFun instances should be the same function; if not,
-    %% I want this to error anyway.
+insert(NewVal, CompFun, {Val, CompFun, Left, Right}=Node) ->
     case CompFun(NewVal, Val) of
-        true ->
+        lt ->
             {Val, CompFun, insert(NewVal, CompFun, Left), Right};
-        false ->
-            {Val, CompFun, Left, insert(NewVal, CompFun, Right)}
+        gt ->
+            {Val, CompFun, Left, insert(NewVal, CompFun, Right)};
+        equal ->
+            Node
     end.
 
 delete(Val, {_Val, CompFun, _Left, _Right}=Node) ->
@@ -77,12 +80,17 @@ delete(Val, CompFun, {Val, CompFun, Left, Right}) ->
     Replacement = minimum(Right),
     NewRight = delete(Replacement, CompFun, Right),
     {Replacement, CompFun, Left, NewRight};
-delete(Val, CompFun, {WrongVal, CompFun, Left, Right}) ->
+delete(Val, CompFun, {WrongVal, CompFun, Left, Right}=Node) ->
     case CompFun(Val, WrongVal) of
-        true ->
+        lt ->
             {WrongVal, CompFun, delete(Val, CompFun, Left), Right};
-        false ->
-            {WrongVal, CompFun, Left, delete(Val, CompFun, Right)}
+        gt ->
+            {WrongVal, CompFun, Left, delete(Val, CompFun, Right)};
+        equal ->
+            %% The previous function head should have caught this, but
+            %% perhaps the comparison function treats two different
+            %% objects equally when Erlang doesn't.
+            delete(WrongVal, CompFun, Node)
     end.
 
 
@@ -90,12 +98,15 @@ children(Value, {Value, _F, L, R}) ->
     {L, R};
 children(_SearchVal, empty) ->
     notfound;
-children(SearchVal, {Value, CompFun, L, R}) ->
+children(SearchVal, {Value, CompFun, L, R}=Node) ->
     case CompFun(SearchVal, Value) of
-        true ->
+        lt ->
             children(SearchVal, L);
-        false ->
-            children(SearchVal, R)
+        gt ->
+            children(SearchVal, R);
+        equal ->
+            %% See corresponding comment on delete/3
+            children(Value, Node)
     end.
 
 value(empty) ->
