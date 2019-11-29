@@ -121,10 +121,10 @@ value(empty) ->
 value({Value, _F, _L, _R}) ->
     Value.
 
-sorted(empty) ->
-    [];
-sorted({Value, _F, Left, Right}) ->
-    sorted(Left) ++ [Value] ++ sorted(Right).
+sorted(Node) ->
+    lists:reverse(
+      fold_nodes(fun(V, Acc) -> [V|Acc] end, [], Node, {depth, inorder})
+     ).
 
 minimum({Val, _F, empty, _R}) ->
     Val;
