@@ -151,16 +151,6 @@ real_transform(F, Acc, {_Val, CompFun, Left, Right}=Node) ->
     {RightTree, Acc3} = maybe_transform(F, Acc2, Right),
     {{NewValue, CompFun, LeftTree, RightTree}, Acc3}.
 
-%% maybe_fold_nodes(_Fun, Acc, empty) ->
-%%     Acc;
-%% maybe_fold_nodes(Fun, Acc, Node) ->
-%%     fold_nodes(Fun, Acc, Node).
-
-%% fold_nodes(F, Acc, {Value, _CompFun, Left, Right}) ->
-%%     Acc2 = maybe_fold_nodes(F, Acc, Left),
-%%     Acc3 = F(Value, Acc2),
-%%     maybe_fold_nodes(F, Acc3, Right).
-
 fold_nodes(F, Acc, Node) ->
     treefold:fold_nodes(F, Acc, Node, {fun value/1, fun child/2}, {depth, preorder}).
 
