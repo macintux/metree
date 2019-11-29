@@ -112,7 +112,7 @@ fold_nodes_preorder_test() ->
         lists:reverse(
           treesort:fold_nodes(
             fun(Value, Acc) -> [Value|Acc] end, [], Root,
-            {depth, preorder})
+            {dfs, preorder})
          ).
 
 fold_nodes_inorder_test() ->
@@ -121,7 +121,7 @@ fold_nodes_inorder_test() ->
         lists:reverse(
           treesort:fold_nodes(
             fun(Value, Acc) -> [Value|Acc] end, [], Root,
-            {depth, inorder})
+            {dfs, inorder})
          ).
 
 fold_nodes_postorder_test() ->
@@ -130,7 +130,7 @@ fold_nodes_postorder_test() ->
         lists:reverse(
           treesort:fold_nodes(
             fun(Value, Acc) -> [Value|Acc] end, [], Root,
-            {depth, postorder})
+            {dfs, postorder})
          ).
 
 fold_nodes_bfs_test() ->
@@ -139,7 +139,16 @@ fold_nodes_bfs_test() ->
         lists:reverse(
           treesort:fold_nodes(
             fun(Value, Acc) -> [Value|Acc] end, [], Root,
-            breadth)
+            {bfs, ltr})
+         ).
+
+fold_nodes_bfs_rtl_test() ->
+    Root = treesort:bulk_tree([4, 6, 5, 1, 3, 8, 2, 7]),
+    [4, 6, 1, 8, 5, 3, 7, 2] =
+        lists:reverse(
+          treesort:fold_nodes(
+            fun(Value, Acc) -> [Value|Acc] end, [], Root,
+            {bfs, rtl})
          ).
 
 

@@ -123,7 +123,7 @@ value({Value, _F, _L, _R}) ->
 
 sorted(Node) ->
     lists:reverse(
-      fold_nodes(fun(V, Acc) -> [V|Acc] end, [], Node, {depth, inorder})
+      fold_nodes(fun(V, Acc) -> [V|Acc] end, [], Node, {dfs, inorder})
      ).
 
 minimum({Val, _F, empty, _R}) ->
@@ -152,7 +152,7 @@ real_transform(F, Acc, {_Val, CompFun, Left, Right}=Node) ->
     {{NewValue, CompFun, LeftTree, RightTree}, Acc3}.
 
 fold_nodes(F, Acc, Node) ->
-    treefold:fold_nodes(F, Acc, Node, {fun value/1, fun child/2}, {depth, preorder}).
+    treefold:fold_nodes(F, Acc, Node, {fun value/1, fun child/2}, {dfs, preorder}).
 
 fold_nodes(F, Acc, Node, Sequence) ->
     treefold:fold_nodes(F, Acc, Node, {fun value/1, fun child/2}, Sequence).
