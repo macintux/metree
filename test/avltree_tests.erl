@@ -18,3 +18,17 @@ rotate_test() ->
          ),
     lists:sort(Inputs) == treesort:sorted(Root2),
     Root = avltree:rotate_right(Root2).
+
+height_test() ->
+    Inputs = [15, 9, 5, 18, 17],
+    Root = treesort:bulk_tree(Inputs),
+    2 = avltree:height_right(Root),
+    0 = avltree:balance_factor(Root).
+
+height_after_rotate_test() ->
+    Inputs = [15, 9, 5, 18, 17],
+    Root = treesort:bulk_tree(Inputs),
+    Root2 = avltree:rotate_left(Root),
+    0 = avltree:height_right(Root2),
+    3 = avltree:height_left(Root2),
+    -3 = avltree:balance_factor(Root2).
