@@ -161,3 +161,10 @@ fold_edges_test() ->
           treesort:fold_edges(fun(V1, V2, Edge, Acc) ->
                                       [{V1, V2, Edge}|Acc] end,
                               [], Root3)).
+
+find_test() ->
+    Root = treesort:bulk_tree([4, 6, 5, 1, 3, 8, 2, 7]),
+    true = treesort:find(7, Root),
+    false = treesort:find(9, Root),
+    Root2 = treesort:insert(9, Root),
+    true = treesort:find(9, Root2).

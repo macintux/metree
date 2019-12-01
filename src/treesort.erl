@@ -18,7 +18,8 @@
          fold_edges/3,
          default_compfun/0,
          minimum/1,
-         maximum/1
+         maximum/1,
+         find/2
         ]).
 
 -define(CF, fun(X, Y) when X < Y -> lt;
@@ -171,3 +172,17 @@ fold_edges(F, Acc, {NodeValue, _CompFun, {LeftVal, _, _, _}=Left,
     Acc3 = F(NodeValue, LeftVal, left, Acc2),
     Acc4 = F(NodeValue, RightVal, right, Acc3),
     fold_edges(F, Acc4, Right).
+
+find(N, {N, _CompFun, _Left, _Right}) ->
+    true;
+find(N, {Val, CompFun, Left, Right}) ->
+    case CompFun(N, Val) of
+        equal ->
+            true;
+        gt ->
+            find(N, Right);
+        lt ->
+            find(N, Left)
+    end;
+find(_N, empty) ->
+    false.
