@@ -52,7 +52,6 @@ distance(L1, L2, Tree) ->
     %% [3,4]
     Path1Unique = Path1 -- Path2,
     Path2Unique = Path2 -- Path1,
-
     length(Path1Unique) + length(Path2Unique).
 
 find(Label, Tree) ->
