@@ -52,6 +52,7 @@ distance(L1, L2, Tree) ->
     %% [3,4]
     Path1Unique = Path1 -- Path2,
     Path2Unique = Path2 -- Path1,
+
     length(Path1Unique) + length(Path2Unique).
 
 find(Label, Tree) ->
@@ -60,8 +61,9 @@ find(Label, Tree) ->
 find(_Label, [], _Acc) ->
     [];
 find(Label, [{Label, _Children}|_T], Acc) ->
-    %% Return the path to, but not including, the matched node value
-    Acc;
+    %% Return the path to the matched node value, including the value
+    %% itself
+    [Label|Acc];
 find(Label, [{OtherLabel, [C1|CT]}|T], Acc) ->
     %% Ordinarily I prefer to use function heads instead of case
     %% statements, *especially* nested case statements, but this logic
